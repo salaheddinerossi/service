@@ -2,11 +2,10 @@
 FROM openjdk:19-ea-11-jdk-oracle AS build
 WORKDIR /app
 
-# Install Maven
-RUN curl -o maven.tar.gz https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven->
+# Install Maven by downloading the binary distribution and extracting it
+RUN curl -o maven.tar.gz https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz && \
     tar -xzf maven.tar.gz -C /opt/ && \
-    ln -s /opt/apache-maven-3.8.4 /opt/maven && \
-    ln -s /opt/maven/bin/mvn /usr/local/bin/mvn && \
+    ln -s /opt/apache-maven-3.8.4/bin/mvn /usr/local/bin/mvn && \
     rm -f maven.tar.gz
 
 # Copy the pom.xml and source code into the Docker image
@@ -24,7 +23,7 @@ WORKDIR /app
 COPY --from=build /app/target/testService-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # Expose the port the app runs on
-EXPOSE 8081
+EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
