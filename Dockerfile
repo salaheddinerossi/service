@@ -1,11 +1,31 @@
-# Stage 1: Build the application
-FROM maven:3.9.2-jdk-19 AS build
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
+  GNU nano 7.2                                 Dockerfile
+# Stage 1: Build the application with JDK 19
+FROM openjdk:19-ea-11-jdk-oracle AS build
+WORKDIR /app
 
-# Stage 2: Create the final Docker image
-FROM openjdk:19-jdk-slim
-COPY --from=build /home/app/target/testService-0.0.1-SNAPSHOT.jar /usr/local/lib/testService.jar
+# Install Maven
+RUN curl -o maven.tar.gz https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven->
+    tar -xzf maven.tar.gz -C /opt/ && \
+    ln -s /opt/apache-maven-3.8.4 /opt/maven && \
+    ln -s /opt/maven/bin/mvn /usr/local/bin/mvn && \
+    rm -f maven.tar.gz
+
+# Copy the pom.xml and source code into the Docker image
+COPY pom.xml .
+COPY src ./src
+
+# Package the application
+RUN mvn package -DskipTests
+
+# Stage 2: Create the final Docker image using JDK 19 for running the application
+FROM openjdk:19-ea-11-jdk-oracle
+WORKDIR /app
+
+# Copy the JAR file from the build stage into the final image
+COPY --from=build /app/target/testService-0.0.1-SNAPSHOT.jar /app/app.jar
+
+# Expose the port the app runs on
 EXPOSE 8081
-ENTRYPOINT ["java","-jar","/usr/local/lib/testService.jar"]
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
