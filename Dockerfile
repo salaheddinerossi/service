@@ -1,4 +1,3 @@
-  GNU nano 7.2                                 Dockerfile
 # Stage 1: Build the application with JDK 19
 FROM openjdk:19-ea-11-jdk-oracle AS build
 WORKDIR /app
