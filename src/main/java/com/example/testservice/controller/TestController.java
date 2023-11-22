@@ -10,7 +10,7 @@ public class TestController {
     @GetMapping("/")
     public String helloSalah(){
 
-        return "plszz work";
+        return "plssdz work";
 
     }
 }
